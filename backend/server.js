@@ -4,10 +4,30 @@ const path = require("node:path");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const fs = require("fs");
-
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const bodyParser = require("body-parser");
 const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+const userRoutes = require("./routes/authRoutes");
+app.use(cors());
+
+mongoose
+  .connect("mongodb://127.0.0.1:27017/chatApp")
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.log("Not connected to MongoDB");
+    console.log(err);
+  });
+
+app.use("/api", userRoutes);
 const server = createServer(app);
 const io = new Server(server);
+app.use(express.json());
 
 app.use(express.static(path.resolve("./public")));
 
